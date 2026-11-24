@@ -326,3 +326,97 @@
 @media (max-width: 350px) {
   .piece-details { grid-template-columns: 1fr; gap: 0; }
 }
+
+/* Keep the content and controls usable as the available space changes. */
+:root { --header-height: 92px; }
+html { scroll-padding-top: calc(var(--header-height) + 12px); }
+.header { height: var(--header-height); }
+
+.hero-inner > *,
+.about-inner > *,
+.fleet-inner > *,
+.contact-inner > *,
+.planning-inner > *,
+.faq-inner > * {
+  min-inline-size: 0;
+}
+
+.faq-list p,
+.contact-links a > span:last-child,
+.footer-main nav,
+.footer-bottom > span {
+  overflow-wrap: anywhere;
+}
+
+.contact-links a { max-inline-size: 100%; }
+.footer-main nav { flex-wrap: wrap; }
+
+.floating-contact {
+  bottom: max(25px, calc(env(safe-area-inset-bottom) + 12px));
+  right: max(25px, calc(env(safe-area-inset-right) + 12px));
+}
+
+@media (min-width: 701px) and (max-width: 1420px) {
+  .footer-bottom { padding-inline-end: 56px; }
+}
+
+@media (max-width: 1000px) {
+  :root { --header-height: 80px; }
+
+  .nav {
+    top: 100%;
+    max-height: calc(100vh - var(--header-height));
+    max-height: calc(100dvh - var(--header-height));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .nav > a {
+    flex-shrink: 0;
+    white-space: normal;
+  }
+
+  .menu-toggle {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    align-items: center;
+    padding: 0;
+  }
+}
+
+@media (min-width: 701px) and (max-width: 900px) {
+  .service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #bombeamento {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #bombeamento .service-image { height: 100%; min-height: 180px; }
+}
+
+@media (max-width: 700px) {
+  :root { --header-height: 72px; }
+  .header-cta { min-height: 44px; flex-shrink: 0; }
+  .hero-truck { inset-inline: 0; margin-inline: auto; }
+  .footer-main nav { justify-content: flex-start; gap: .8rem 1.25rem; }
+  .footer-bottom { flex-wrap: wrap; }
+  .floating-contact {
+    bottom: max(17px, calc(env(safe-area-inset-bottom) + 12px));
+    right: max(17px, calc(env(safe-area-inset-right) + 12px));
+  }
+}
+
+@media (max-width: 420px) {
+  .quote-planning-fields { grid-template-columns: 1fr; gap: 0; }
+  .piece-action { min-height: 44px; }
+}
+
+@media (max-width: 350px) {
+  .header-inner { gap: 8px; }
+  .header-cta { width: 44px; padding: 0; }
+  .header-cta::after { display: none; }
+  .header-cta .icon { width: 20px; height: 20px; }
+  .hero h1 { font-size: clamp(2rem, 10vw, 2.65rem); }
+  .footer-main nav > a { flex: 1 1 40%; }
+}
