@@ -124,10 +124,16 @@ const decimalFormat = new Intl.NumberFormat("pt-BR", {
 const form = document.getElementById("orcamento");
 const quoteFields = document.getElementById("quote-fields");
 const quoteVolume = document.getElementById("quote-volume");
+const quotePlanNote = document.getElementById("quote-plan-note");
 const requiredText = [document.getElementById("name"), document.getElementById("city")];
+let quotedPieces = [];
 
 [...requiredText, quoteVolume].forEach(field => {
   field.addEventListener("input", () => field.setCustomValidity(""));
+});
+quoteVolume.addEventListener("input", () => {
+  quotedPieces = [];
+  quotePlanNote.hidden = true;
 });
 
 form.addEventListener("submit", event => {
@@ -154,6 +160,16 @@ form.addEventListener("submit", event => {
   if (volume !== null) lines.push("Volume estimado: " + decimalFormat.format(volume) + " m³");
   if (date) lines.push("Data desejada: " + date.split("-").reverse().join("/"));
   if (details) lines.push("Detalhes da obra: " + details);
+  if (quotedPieces.length) {
+    const sharedRows = quotedPieces.slice(0, 8);
+    lines.push("", "Planejamento de concretagem:");
+    sharedRows.forEach(piece => {
+      const quantity = piece.quantity > 1 ? " (×" + piece.quantity + ")" : "";
+      lines.push("- " + piece.name + quantity + ": " + decimalFormat.format(piece.volume) + " m³");
+    });
+    const remaining = quotedPieces.length - sharedRows.length;
+    if (remaining) lines.push("Outras peças incluídas no total: " + remaining);
+  }
   const url = "https://wa.me/5524999851277?text=" + encodeURIComponent(lines.join("\n"));
   window.open(url, "_blank", "noopener,noreferrer");
 
@@ -173,37 +189,140 @@ quoteFields.hidden = false;
 document.getElementById("quote-direct").hidden = true;
 
 const estimator = document.getElementById("volume-estimator");
+const pieceName = document.getElementById("piece-name");
+const pieceQuantity = document.getElementById("piece-quantity");
 const dimensions = ["piece-length", "piece-width", "piece-depth"].map(id => document.getElementById(id));
 const output = document.getElementById("estimated-volume");
 const useVolume = document.getElementById("use-volume");
-let estimatedVolume = null;
+const summary = document.getElementById("piece-summary");
+const pieceList = document.getElementById("piece-list");
+const savePiece = document.getElementById("save-piece");
+const cancelEdit = document.getElementById("cancel-piece-edit");
+const pieces = [];
+let nextPieceId = 1;
+let editingId = null;
 
-dimensions.forEach(field => field.addEventListener("input", () => {
-  field.setCustomValidity("");
-  if (estimatedVolume === null) return;
-  estimatedVolume = null;
-  output.value = "—";
-  useVolume.hidden = true;
-}));
+dimensions.forEach(field => field.addEventListener("input", () => field.setCustomValidity("")));
+
+function totalVolume() {
+  return pieces.reduce((sum, piece) => sum + piece.volume, 0);
+}
+
+function pieceControl(action, label, piece) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "piece-action";
+  button.dataset.pieceAction = action;
+  button.dataset.pieceId = piece.id;
+  button.textContent = label;
+  button.setAttribute("aria-label", label + " " + piece.name);
+  return button;
+}
+
+function renderPlan() {
+  const rows = pieces.map(piece => {
+    const row = document.createElement("li");
+    const info = document.createElement("div");
+    const title = document.createElement("strong");
+    const measurements = document.createElement("span");
+    title.textContent = piece.name;
+    measurements.textContent = piece.dimensions.map(value => decimalFormat.format(value))
+      .map((value, index) => value + (index === 2 ? " cm" : " m"))
+      .join(" × ");
+    if (piece.quantity > 1) measurements.textContent = piece.quantity + " un. · " + measurements.textContent;
+    info.append(title, measurements);
+
+    const actions = document.createElement("div");
+    actions.className = "piece-row-actions";
+    const volume = document.createElement("strong");
+    volume.textContent = decimalFormat.format(piece.volume) + " m³";
+    actions.append(volume, pieceControl("edit", "Editar", piece), pieceControl("remove", "Remover", piece));
+    row.append(info, actions);
+    return row;
+  });
+
+  pieceList.replaceChildren(...rows);
+  const hasPieces = pieces.length > 0;
+  summary.hidden = !hasPieces;
+  useVolume.hidden = !hasPieces;
+  output.value = hasPieces ? decimalFormat.format(totalVolume()) + " m³" : "—";
+}
+
+function resetEstimator() {
+  estimator.reset();
+  dimensions.forEach(field => field.setCustomValidity(""));
+  editingId = null;
+  savePiece.textContent = "Adicionar peça";
+  cancelEdit.hidden = true;
+}
 
 estimator.addEventListener("submit", event => {
   event.preventDefault();
-  const [length, width, depth] = dimensions.map(field => {
+  const measures = dimensions.map(field => {
     const value = positiveDecimal(field.value);
     field.setCustomValidity(value === null ? "Informe uma medida maior que zero. Exemplo: 2,5." : "");
     return value;
   });
   if (!estimator.reportValidity()) return;
 
-  estimatedVolume = decimalFormat.format(length * width * depth / 100);
-  output.value = estimatedVolume + " m³";
-  useVolume.hidden = false;
+  const [length, width, depth] = measures;
+  const quantity = pieceQuantity.valueAsNumber;
+  const id = editingId ?? nextPieceId++;
+  const piece = {
+    id,
+    name: pieceName.value.trim() || "Peça " + id,
+    dimensions: measures,
+    quantity,
+    volume: length * width * depth * quantity / 100
+  };
+  if (editingId === null) pieces.push(piece);
+  else pieces[pieces.findIndex(item => item.id === id)] = piece;
+
+  resetEstimator();
+  renderPlan();
+});
+
+cancelEdit.addEventListener("click", () => {
+  resetEstimator();
+  pieceName.focus();
+});
+
+pieceList.addEventListener("click", event => {
+  const button = event.target.closest("button[data-piece-action]");
+  if (!button) return;
+  const index = pieces.findIndex(piece => piece.id === Number(button.dataset.pieceId));
+  if (index < 0) return;
+  const piece = pieces[index];
+
+  if (button.dataset.pieceAction === "edit") {
+    resetEstimator();
+    editingId = piece.id;
+    pieceName.value = piece.name;
+    pieceQuantity.value = piece.quantity;
+    dimensions.forEach((field, dimensionIndex) => {
+      field.value = decimalFormat.format(piece.dimensions[dimensionIndex]);
+    });
+    savePiece.textContent = "Salvar peça";
+    cancelEdit.hidden = false;
+    pieceName.focus();
+    return;
+  }
+
+  pieces.splice(index, 1);
+  if (editingId === piece.id) resetEstimator();
+  renderPlan();
+  const next = pieceList.children[Math.min(index, pieces.length - 1)];
+  const nextRemove = next?.querySelector("button[data-piece-action=remove]");
+  (nextRemove || savePiece).focus({ preventScroll: true });
 });
 
 useVolume.addEventListener("click", () => {
-  if (estimatedVolume === null) return;
-  quoteVolume.value = estimatedVolume;
+  if (!pieces.length) return;
+  quoteVolume.value = decimalFormat.format(totalVolume());
   quoteVolume.setCustomValidity("");
+  quotedPieces = pieces.map(({ name, quantity, volume }) => ({ name, quantity, volume }));
+  quotePlanNote.textContent = "Resumo do planejamento incluído na mensagem de orçamento.";
+  quotePlanNote.hidden = false;
 
   const service = document.getElementById("service");
   if (!service.value) service.value = "Concreto usinado";

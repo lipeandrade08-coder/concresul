@@ -213,23 +213,34 @@
         <div class="planning-copy">
           <p class="eyebrow">PLANEJE SUA CONCRETAGEM</p>
           <h2 id="planning-title">Quanto concreto<br><span>sua obra precisa?</span></h2>
-          <p>Estime o volume de uma laje, piso ou peça retangular com as medidas do seu projeto. Depois, leve o resultado direto para o orçamento.</p>
-          <p class="planning-example">Por exemplo, um piso de 5 m × 4 m com 10 cm de espessura tem um volume de 2 m³.</p>
+          <p>Some o concreto de lajes, pisos e outras peças retangulares. Adicione cada peça com as medidas do projeto e leve o resumo direto para o orçamento.</p>
+          <p class="planning-example">Um piso de 5 m × 4 m com 10 cm de espessura tem 2 m³. Adicione outras peças para calcular o total da concretagem.</p>
         </div>
         <div class="volume-card" id="volume-tool" hidden>
           <form class="volume-form" id="volume-estimator" method="post">
-            <h3>Calculadora de volume</h3>
+            <h3>Planejador de concretagem</h3>
+            <div class="piece-details">
+              <div class="field"><label for="piece-name">Nome da peça <span class="optional">opcional</span></label><input id="piece-name" name="pieceName" placeholder="Ex.: Laje do térreo" maxlength="48"></div>
+              <div class="field"><label for="piece-quantity">Quantidade</label><input id="piece-quantity" name="quantity" type="number" min="1" max="999" step="1" inputmode="numeric" value="1" required></div>
+            </div>
             <div class="volume-dimensions">
               <div class="field"><label for="piece-length">Comprimento</label><div class="unit-field"><input id="piece-length" name="length" inputmode="decimal" placeholder="5" maxlength="10" required aria-describedby="measure-example"><span aria-hidden="true">m</span></div></div>
               <div class="field"><label for="piece-width">Largura</label><div class="unit-field"><input id="piece-width" name="width" inputmode="decimal" placeholder="4" maxlength="10" required aria-describedby="measure-example"><span aria-hidden="true">m</span></div></div>
               <div class="field"><label for="piece-depth">Espessura</label><div class="unit-field"><input id="piece-depth" name="depth" inputmode="decimal" placeholder="10" maxlength="10" required aria-describedby="measure-example"><span aria-hidden="true">cm</span></div></div>
             </div>
             <p id="measure-example" class="input-hint">Comprimento e largura em metros. Espessura em centímetros.</p>
-            <button class="button button-outline" type="submit">Calcular volume</button>
+            <div class="piece-actions">
+              <button class="button button-outline" id="save-piece" type="submit">Adicionar peça</button>
+              <button class="piece-action" id="cancel-piece-edit" type="button" hidden>Cancelar edição</button>
+            </div>
           </form>
+          <div class="piece-summary" id="piece-summary" hidden>
+            <h4>Peças no planejamento</h4>
+            <ul class="piece-list" id="piece-list"></ul>
+          </div>
           <div class="volume-output">
             <div>
-              <p class="volume-label">Volume geométrico estimado</p>
+              <p class="volume-label">Volume total estimado</p>
               <output for="piece-length piece-width piece-depth" form="volume-estimator" id="estimated-volume" aria-live="polite">—</output>
             </div>
             <a class="button button-light" id="use-volume" href="#orcamento" hidden>Usar no orçamento</a>
@@ -266,9 +277,10 @@
             </div>
           </div>
           <div class="field-row quote-planning-fields">
-            <div class="field"><label for="quote-volume">Volume (m³) <span class="optional">opcional</span></label><input id="quote-volume" name="volume" inputmode="decimal" placeholder="Ex.: 2,5" maxlength="40"></div>
+            <div class="field"><label for="quote-volume">Volume (m³) <span class="optional">opcional</span></label><input id="quote-volume" name="volume" inputmode="decimal" placeholder="Ex.: 2,5" maxlength="40" aria-describedby="quote-plan-note"></div>
             <div class="field"><label for="quote-date">Data desejada <span class="optional">opcional</span></label><input id="quote-date" name="date" type="date"></div>
           </div>
+          <p class="quote-plan-note" id="quote-plan-note" role="status" hidden></p>
           <div class="field"><label for="message">Detalhes da obra <span class="optional">opcional</span></label><textarea id="message" name="message" rows="2" placeholder="Ex.: laje, bairro ou acesso para o caminhão" maxlength="1500"></textarea></div>
           <button class="button form-submit" type="submit"><svg class="icon" aria-hidden="true"><use href="#i-whatsapp"/></svg>Continuar no WhatsApp</button>
           <p class="form-privacy">Revise os dados e confirme o envio no WhatsApp.</p>

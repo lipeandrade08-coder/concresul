@@ -232,3 +232,97 @@
 @media (max-width: 350px) {
   .volume-dimensions, .quote-planning-fields { grid-template-columns: 1fr; }
 }
+
+.piece-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(6.25rem, .36fr);
+  gap: .75rem;
+}
+
+.piece-details .optional {
+  padding-left: .2rem;
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 400;
+}
+
+.piece-actions,
+.piece-row-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.piece-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: .32rem .58rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: var(--green);
+  background: transparent;
+  font-size: .84rem;
+  font-weight: 600;
+}
+
+.piece-action[hidden] { display: none; }
+.piece-action:hover { background: #edf4eb; }
+
+.piece-summary { margin-top: 1.4rem; }
+.piece-summary h4 { margin: 0 0 .45rem; font-size: .88rem; }
+
+.piece-list { margin: 0; padding: 0; list-style: none; }
+
+.piece-list > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .4rem .8rem;
+  padding: .75rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.piece-list > li:last-child { border-bottom: 1px solid var(--line); }
+
+.piece-list strong {
+  font-size: .95rem;
+  overflow-wrap: anywhere;
+}
+
+.piece-list > li > div:first-child > span {
+  display: block;
+  color: var(--muted);
+  font-size: .84rem;
+  overflow-wrap: anywhere;
+}
+
+.piece-row-actions {
+  justify-content: flex-end;
+  column-gap: .2rem;
+}
+
+.piece-row-actions > strong {
+  max-width: 11ch;
+  margin-right: .3rem;
+  color: var(--forest);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.quote-plan-note {
+  margin: -.15rem 0 .85rem;
+  color: var(--green);
+  font-size: .83rem;
+}
+
+@media (max-width: 540px) {
+  .piece-list > li { grid-template-columns: minmax(0, 1fr); }
+  .piece-row-actions { justify-content: flex-start; }
+  .piece-row-actions > strong { text-align: left; }
+}
+
+@media (max-width: 350px) {
+  .piece-details { grid-template-columns: 1fr; gap: 0; }
+}
