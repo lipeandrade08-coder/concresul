@@ -5,6 +5,6 @@
   "description": "Landing page da Concresul em HTML, CSS e JavaScript.",
   "scripts": {
     "dev": "python3 -m http.server 4173 --bind 127.0.0.1 --directory dist",
-    "check": "node --check dist/script.js"
+    "check": "node --check dist/script.js && node --check dist/motion.js"
   }
 }

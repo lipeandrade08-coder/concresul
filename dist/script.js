@@ -67,11 +67,13 @@ function selectFleet(tab) {
     item.tabIndex = active ? 0 : -1;
   });
   const image = document.getElementById("fleet-image");
+  const imageChanged = image.getAttribute("src") !== `assets/${selected.image}`;
   image.src = `assets/${selected.image}`;
   image.alt = selected.alt;
   document.getElementById("fleet-name").textContent = selected.name;
   document.getElementById("fleet-label").textContent = selected.label;
   document.getElementById("fleet-panel").setAttribute("aria-labelledby", tab.id);
+  if (imageChanged) document.dispatchEvent(new CustomEvent("concresul:fleet-change"));
 }
 fleetTabs.forEach((tab, index) => {
   tab.addEventListener("click", () => selectFleet(tab));
