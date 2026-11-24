@@ -53,9 +53,22 @@ window.addEventListener("scroll", () => {
 updateActiveSection();
 
 const fleet = {
-  betoneira: {image:"concresul_betoneira_02.webp", alt:"Caminhão betoneira Iveco da Concresul", name:"Caminhões betoneira", label:"TRANSPORTE"},
-  bomba: {image:"concresul_caminhao_bomba_01.webp", alt:"Caminhão bomba Volvo da Concresul", name:"Caminhões bomba", label:"BOMBEAMENTO"},
-  logistica: {image:"concresul_betoneira_01.webp", alt:"Betoneira Mercedes-Benz da frota própria Concresul", name:"Da usina à sua obra", label:"FROTA PRÓPRIA"}
+  betoneira: {
+    image: "concresul_betoneira_02.webp",
+    width: 654,
+    height: 381,
+    alt: "Caminhão betoneira Iveco da Concresul",
+    name: "Caminhões betoneira",
+    label: "TRANSPORTE"
+  },
+  bomba: {
+    image: "concresul_bomba_estacionaria.webp",
+    width: 1280,
+    height: 632,
+    alt: "Caminhão da Concresul equipado com bomba estacionária de concreto e mangotes",
+    name: "Bomba estacionária",
+    label: "BOMBEAMENTO"
+  }
 };
 const fleetTabs = [...document.querySelectorAll(".fleet-tab")];
 function selectFleet(tab) {
@@ -69,6 +82,8 @@ function selectFleet(tab) {
   const image = document.getElementById("fleet-image");
   const imageChanged = image.getAttribute("src") !== `assets/${selected.image}`;
   image.src = `assets/${selected.image}`;
+  image.width = selected.width;
+  image.height = selected.height;
   image.alt = selected.alt;
   document.getElementById("fleet-name").textContent = selected.name;
   document.getElementById("fleet-label").textContent = selected.label;

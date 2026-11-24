@@ -1,111 +1,23 @@
-/* Motion uses individual translate/rotate properties so existing layout and hover
-   transforms remain independent. All content stays visible without JavaScript. */
-html.motion-ready { scroll-behavior: smooth; }
-  .motion-ready [data-reveal] {
-    opacity: 0;
-    translate: 0 30px;
-    transition:
-      opacity 720ms cubic-bezier(.2,.65,.3,1),
-      translate 900ms cubic-bezier(.16,1,.3,1),
-      scale 900ms cubic-bezier(.16,1,.3,1);
-    transition-delay: var(--reveal-delay, 0ms);
-  }
-
-  .motion-ready [data-reveal="down"] { translate: 0 -18px; }
-  .motion-ready [data-reveal="right"] { translate: 38px 0; }
-  .motion-ready [data-reveal="scale"] { translate: 0 12px; scale: .97; }
-
-  .motion-ready [data-reveal].is-revealed {
-    opacity: 1;
-    translate: 0 0;
-    scale: 1;
-  }
-
-  .motion-ready .hero-truck {
-    transform: translate3d(var(--hero-truck-x, 0px), var(--hero-truck-y, 0px), 0);
-    transform-origin: 50% 86%;
-  }
-
-  .motion-ready .hero-backdrop > svg {
-    translate: 0 var(--hero-backdrop-y, 0px);
-  }
-
-  .motion-ready .hero-ground {
-    position: absolute;
-    z-index: -1;
-    left: 2%;
-    right: -9%;
-    bottom: 12%;
-    height: 26px;
-    background: radial-gradient(ellipse, #1f422a20, transparent 68%);
-    scale: var(--ground-scale, 1) 1;
-    opacity: var(--ground-opacity, .7);
-    pointer-events: none;
-  }
-
-  .motion-ready .service-image img,
-  .motion-ready .fleet-display > img {
-    transform-origin: 50% 86%;
-  }
-
-  .motion-ready .service-card .service-image img {
-    transition: scale 550ms cubic-bezier(.16,1,.3,1);
-  }
-
-  .motion-ready .header::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--green), #91bb6d);
-    transform: scaleX(var(--page-progress, 0));
-    transform-origin: left;
-    pointer-events: none;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .motion-ready .service-card:hover .service-image img { scale: 1.035; }
-  }
-
-  @media (max-width: 700px) {
-    .motion-ready [data-reveal] { translate: 0 22px; }
-    .motion-ready [data-reveal="down"] { translate: 0 -12px; }
-    .motion-ready [data-reveal="right"] { translate: 20px 0; }
-    .motion-ready [data-reveal].is-revealed { translate: 0 0; }
-    .motion-ready .hero-ground { bottom: 14%; left: 8%; right: 5%; }
-  }
-@media (prefers-reduced-motion: reduce) {
-  html:not(.motion-ready) [data-reveal] {
-    opacity: 1 !important;
-    translate: none !important;
-    scale: none !important;
-  }
-}
+html.motion-paused { scroll-behavior: auto; }
 
 .motion-toggle {
-  position: fixed;
-  bottom: 25px;
-  left: 25px;
-  z-index: 20;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-height: 36px;
   gap: 7px;
-  min-height: 40px;
-  padding: 9px 13px;
-  border: 1px solid #dce5da;
-  border-radius: 24px;
-  background: #fffffff0;
-  color: var(--green);
-  box-shadow: 0 3px 16px #12351c0c;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 5px 10px;
+  border: 1px solid #ffffff26;
+  border-radius: 5px;
+  background: transparent;
+  color: #c6d8ce;
+  font-size: .75rem;
+  white-space: nowrap;
 }
+
 .motion-toggle[hidden] { display: none; }
-.motion-toggle .icon { width: 17px; height: 17px; stroke-width: 1.8; }
+.motion-toggle:hover { background: #ffffff10; }
+.motion-toggle .icon { width: 15px; height: 15px; }
 .motion-toggle .motion-pause { display: none; }
 .motion-toggle[aria-pressed="true"] .motion-play { display: none; }
 .motion-toggle[aria-pressed="true"] .motion-pause { display: block; }
-.motion-toggle:hover { background: #eff6e8; }
-@media (max-width: 700px) { .motion-toggle { bottom: 22px; left: 17px; } }
