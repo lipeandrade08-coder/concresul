@@ -122,7 +122,7 @@ form.addEventListener("submit", event => {
   if (!form.reportValidity()) return;
   const data = new FormData(form);
   const message = ["Olá, Concresul! Gostaria de solicitar um orçamento.", "", `Nome: ${data.get("name").trim()}`, `Telefone: ${data.get("phone").trim()}`, `Cidade da obra: ${data.get("city").trim()}`, `Solução: ${data.get("service")}`, data.get("message").trim() ? `Detalhes da obra: ${data.get("message").trim()}` : ""].filter((line, index) => line || index === 1).join("\n");
-  const url = `https://wa.me/552433332185?text=${encodeURIComponent(message)}`;
+  const url = `https://wa.me/5524999851277?text=${encodeURIComponent(message)}`;
   window.open(url, "_blank", "noopener,noreferrer");
   const status = document.getElementById("form-status");
   status.replaceChildren(document.createTextNode("Sua solicitação está pronta. Confira e finalize o envio no WhatsApp. "));
