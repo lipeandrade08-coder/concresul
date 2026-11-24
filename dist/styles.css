@@ -189,10 +189,16 @@
 }
 
 .volume-note {
-  margin-top: .85rem;
-  color: var(--muted);
-  font-size: .85rem;
+  margin-top: 1rem;
+  padding: .8rem .9rem;
+  border-inline-start: 3px solid #83a786;
+  border-radius: 0 5px 5px 0;
+  background: #eef4ec;
+  color: #345744;
+  font-size: .9rem;
 }
+
+.volume-note + .volume-output { margin-top: .85rem; }
 
 .quote-fields {
   min-inline-size: 0;

@@ -157,12 +157,14 @@ form.addEventListener("submit", event => {
     "Cidade da obra: " + data.get("city").trim(),
     "Serviço: " + data.get("service")
   ];
-  if (volume !== null) lines.push("Volume estimado: " + decimalFormat.format(volume) + " m³");
+  if (volume !== null) {
+    lines.push("Volume aproximado: " + decimalFormat.format(volume) + " m³ (a confirmar com a Concresul)");
+  }
   if (date) lines.push("Data desejada: " + date.split("-").reverse().join("/"));
   if (details) lines.push("Detalhes da obra: " + details);
   if (quotedPieces.length) {
     const sharedRows = quotedPieces.slice(0, 8);
-    lines.push("", "Planejamento de concretagem:");
+    lines.push("", "Estimativa por peça:");
     sharedRows.forEach(piece => {
       const quantity = piece.quantity > 1 ? " (×" + piece.quantity + ")" : "";
       lines.push("- " + piece.name + quantity + ": " + decimalFormat.format(piece.volume) + " m³");
@@ -321,7 +323,7 @@ useVolume.addEventListener("click", () => {
   quoteVolume.value = decimalFormat.format(totalVolume());
   quoteVolume.setCustomValidity("");
   quotedPieces = pieces.map(({ name, quantity, volume }) => ({ name, quantity, volume }));
-  quotePlanNote.textContent = "Resumo do planejamento incluído na mensagem de orçamento.";
+  quotePlanNote.textContent = "Estimativa incluída no orçamento. Confirme o volume com a Concresul antes de fechar o pedido.";
   quotePlanNote.hidden = false;
 
   const service = document.getElementById("service");
