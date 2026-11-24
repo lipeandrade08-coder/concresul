@@ -506,28 +506,10 @@ html { scroll-padding-top: calc(var(--header-height) + 12px); }
 }
 
 .hero-video {
-  position: absolute;
-  z-index: 2;
-  inset-inline: 0;
-  top: 50%;
-  width: 100%;
   height: auto;
-  aspect-ratio: 16 / 9;
-  transform: translateY(-50%);
-  border-radius: 12px;
-  background: #182820;
-  box-shadow: 0 16px 38px #17372a26;
   visibility: hidden;
   pointer-events: none;
 }
 
 .hero-visual.is-video-playing .hero-video { visibility: visible; }
-.hero-visual.is-video-playing .hero-truck { visibility: hidden; }
-
-@media (max-width: 700px) {
-  .hero-video {
-    width: min(92%, 530px);
-    margin-inline: auto;
-    border-radius: 9px;
-  }
-}
+.hero-visual.is-video-playing img.hero-truck { visibility: hidden; }
