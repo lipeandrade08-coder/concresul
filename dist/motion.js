@@ -10,7 +10,7 @@
   const heroImage = document.querySelector(".hero-truck");
   const truckImages = [...document.querySelectorAll(".service-image img"), fleetImage];
   const sections = document.querySelectorAll(
-    ".section-heading, .service-card, .about-copy, .about-details, .fleet-copy, .fleet-display, .contact-copy, .quote-form, .faq-inner > div"
+    ".section-heading, .service-card, .about-copy, .about-details, .fleet-copy, .fleet-display, .planning-copy, .volume-card, .contact-copy, .quote-form, .faq-inner > div"
   );
   const targets = [heading, heroImage, ...sections, ...truckImages];
   const seen = new WeakSet();

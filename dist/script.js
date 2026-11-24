@@ -37,7 +37,7 @@ function updateActiveSection() {
     if (section.offsetTop <= scrollPosition) activeId = section.id;
   });
   navLinks.forEach(link => {
-    const active = link.hash === `#${activeId}`;
+    const active = (link.dataset.section || link.hash.slice(1)) === activeId;
     link.classList.toggle("is-active", active);
     if (active) link.setAttribute("aria-current", "location");
     else link.removeAttribute("aria-current");
@@ -109,38 +109,54 @@ document.querySelectorAll("[data-service]").forEach(link => link.addEventListene
   document.getElementById("service").value = link.dataset.service;
 }));
 
-const form = document.getElementById("quote-form");
-const phone = document.getElementById("phone");
-["name", "city"].forEach(id => {
-  const field = document.getElementById(id);
+function positiveDecimal(input) {
+  const value = input.trim();
+  if (!/^\d+(?:[,.]\d+)?$/.test(value)) return null;
+  const number = Number(value.replace(",", "."));
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+const decimalFormat = new Intl.NumberFormat("pt-BR", {
+  maximumSignificantDigits: 12,
+  useGrouping: false
+});
+
+const form = document.getElementById("orcamento");
+const quoteFields = document.getElementById("quote-fields");
+const quoteVolume = document.getElementById("quote-volume");
+const requiredText = [document.getElementById("name"), document.getElementById("city")];
+
+[...requiredText, quoteVolume].forEach(field => {
   field.addEventListener("input", () => field.setCustomValidity(""));
 });
-phone.addEventListener("input", () => {
-  const digits = phone.value.replace(/\D/g, "").slice(0, 11);
-  phone.setCustomValidity("");
-  if (!digits) { phone.value = ""; return; }
-  const area = digits.slice(0, 2);
-  const local = digits.slice(2);
-  const split = local.length > 8 ? 5 : 4;
-  phone.value = `(${area}${digits.length >= 2 ? ") " : ""}${local.slice(0, split)}${local.length > split ? "-" + local.slice(split) : ""}`;
-});
-phone.addEventListener("blur", () => {
-  const length = phone.value.replace(/\D/g, "").length;
-  phone.setCustomValidity(length && length < 10 ? "Informe um telefone com DDD, com 10 ou 11 dígitos." : "");
-});
+
 form.addEventListener("submit", event => {
   event.preventDefault();
-  const digits = phone.value.replace(/\D/g, "");
-  phone.setCustomValidity(digits.length < 10 ? "Informe um telefone com DDD, com 10 ou 11 dígitos." : "");
-  ["name", "city"].forEach(id => {
-    const field = document.getElementById(id);
+  requiredText.forEach(field => {
     field.setCustomValidity(field.value.trim() ? "" : "Preencha este campo.");
   });
+
+  const volumeText = quoteVolume.value.trim();
+  const volume = positiveDecimal(volumeText);
+  quoteVolume.setCustomValidity(volumeText && volume === null ? "Informe um volume maior que zero. Exemplo: 2,5." : "");
   if (!form.reportValidity()) return;
+
   const data = new FormData(form);
-  const message = ["Olá, Concresul! Gostaria de solicitar um orçamento.", "", `Nome: ${data.get("name").trim()}`, `Telefone: ${data.get("phone").trim()}`, `Cidade da obra: ${data.get("city").trim()}`, `Solução: ${data.get("service")}`, data.get("message").trim() ? `Detalhes da obra: ${data.get("message").trim()}` : ""].filter((line, index) => line || index === 1).join("\n");
-  const url = `https://wa.me/5524999851277?text=${encodeURIComponent(message)}`;
+  const date = data.get("date");
+  const details = data.get("message").trim();
+  const lines = [
+    "Olá, Concresul! Gostaria de solicitar um orçamento.",
+    "",
+    "Nome: " + data.get("name").trim(),
+    "Cidade da obra: " + data.get("city").trim(),
+    "Serviço: " + data.get("service")
+  ];
+  if (volume !== null) lines.push("Volume estimado: " + decimalFormat.format(volume) + " m³");
+  if (date) lines.push("Data desejada: " + date.split("-").reverse().join("/"));
+  if (details) lines.push("Detalhes da obra: " + details);
+  const url = "https://wa.me/5524999851277?text=" + encodeURIComponent(lines.join("\n"));
   window.open(url, "_blank", "noopener,noreferrer");
+
   const status = document.getElementById("form-status");
   status.replaceChildren(document.createTextNode("Sua solicitação está pronta. Confira e finalize o envio no WhatsApp. "));
   const retry = document.createElement("a");
@@ -151,4 +167,47 @@ form.addEventListener("submit", event => {
   status.append(retry);
   status.hidden = false;
 });
+
+quoteFields.disabled = false;
+quoteFields.hidden = false;
+document.getElementById("quote-direct").hidden = true;
+
+const estimator = document.getElementById("volume-estimator");
+const dimensions = ["piece-length", "piece-width", "piece-depth"].map(id => document.getElementById(id));
+const output = document.getElementById("estimated-volume");
+const useVolume = document.getElementById("use-volume");
+let estimatedVolume = null;
+
+dimensions.forEach(field => field.addEventListener("input", () => {
+  field.setCustomValidity("");
+  if (estimatedVolume === null) return;
+  estimatedVolume = null;
+  output.value = "—";
+  useVolume.hidden = true;
+}));
+
+estimator.addEventListener("submit", event => {
+  event.preventDefault();
+  const [length, width, depth] = dimensions.map(field => {
+    const value = positiveDecimal(field.value);
+    field.setCustomValidity(value === null ? "Informe uma medida maior que zero. Exemplo: 2,5." : "");
+    return value;
+  });
+  if (!estimator.reportValidity()) return;
+
+  estimatedVolume = decimalFormat.format(length * width * depth / 100);
+  output.value = estimatedVolume + " m³";
+  useVolume.hidden = false;
+});
+
+useVolume.addEventListener("click", () => {
+  if (estimatedVolume === null) return;
+  quoteVolume.value = estimatedVolume;
+  quoteVolume.setCustomValidity("");
+
+  const service = document.getElementById("service");
+  if (!service.value) service.value = "Concreto usinado";
+});
+
+document.getElementById("volume-tool").hidden = false;
 document.getElementById("year").textContent = new Date().getFullYear();
