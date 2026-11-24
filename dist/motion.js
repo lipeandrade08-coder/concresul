@@ -4,7 +4,6 @@
   if (!("IntersectionObserver" in window) || !Element.prototype.animate) return;
 
   const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const toggle = document.querySelector(".motion-toggle");
   const fleetImage = document.getElementById("fleet-image");
   const heading = document.querySelector(".hero-copy");
   const heroImage = document.querySelector(".hero-truck");
@@ -17,7 +16,6 @@
   const running = new Map();
   let observer;
   let enabled = false;
-  let manuallySet = false;
 
   function animate(element, from, options) {
     running.get(element)?.cancel();
@@ -64,10 +62,6 @@
 
   function setEnabled(next) {
     enabled = next;
-    toggle.setAttribute("aria-pressed", String(enabled));
-    toggle.querySelector("span").textContent = enabled ? "Pausar animações" : "Ativar animações";
-    document.documentElement.classList.toggle("motion-paused", !enabled);
-
     observer?.disconnect();
 
     if (!enabled) {
@@ -112,15 +106,6 @@
     if (enabled && fleetImage.src === selectedUrl && seen.has(fleetImage)) animateTruck(fleetImage);
   });
 
-  toggle.addEventListener("click", () => {
-    manuallySet = true;
-    setEnabled(!enabled);
-  });
-
-  preference.addEventListener("change", () => {
-    if (!manuallySet) setEnabled(!preference.matches);
-  });
-
-  toggle.hidden = false;
+  preference.addEventListener("change", () => setEnabled(!preference.matches));
   setEnabled(!preference.matches);
 })();

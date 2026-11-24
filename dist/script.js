@@ -1,33 +1,49 @@
 "use strict";
 
+const locale = document.documentElement.lang;
+const phrases = JSON.parse(document.getElementById("page-translations")?.textContent || "{}");
+const assetDirectory = new URL("assets/", document.currentScript.src);
+
+function tr(phrase) {
+  return phrases[phrase] ?? phrase;
+}
+
 const menuButton = document.querySelector(".menu-toggle");
 const navigation = document.querySelector(".nav");
+const languageMenu = document.querySelector(".language-menu");
+
 function closeMenu() {
+  languageMenu.open = false;
   navigation.classList.remove("is-open");
   menuButton.setAttribute("aria-expanded", "false");
-  menuButton.setAttribute("aria-label", "Abrir menu");
+  menuButton.setAttribute("aria-label", tr("Abrir menu"));
 }
 menuButton.addEventListener("click", () => {
   const expanded = menuButton.getAttribute("aria-expanded") !== "true";
   navigation.classList.toggle("is-open", expanded);
   menuButton.setAttribute("aria-expanded", String(expanded));
-  menuButton.setAttribute("aria-label", expanded ? "Fechar menu" : "Abrir menu");
+  menuButton.setAttribute("aria-label", expanded ? tr("Fechar menu") : tr("Abrir menu"));
 });
 navigation.querySelectorAll("a").forEach(link => link.addEventListener("click", closeMenu));
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape" && navigation.classList.contains("is-open")) {
+  if (event.key !== "Escape") return;
+  if (languageMenu.open) {
+    languageMenu.open = false;
+    languageMenu.querySelector("summary").focus();
+  } else if (navigation.classList.contains("is-open")) {
     closeMenu();
     menuButton.focus();
   }
 });
 document.addEventListener("click", event => {
   if (!event.target.closest(".header")) closeMenu();
+  else if (!languageMenu.contains(event.target)) languageMenu.open = false;
 });
 window.matchMedia("(min-width: 1001px)").addEventListener("change", event => {
   if (event.matches) closeMenu();
 });
 
-const navLinks = [...navigation.querySelectorAll("a")];
+const navLinks = [...navigation.querySelectorAll(":scope > a")];
 const trackedSections = [...document.querySelectorAll("main section[id]")];
 let scrollPending = false;
 function updateActiveSection() {
@@ -57,17 +73,17 @@ const fleet = {
     image: "concresul_betoneira_02.webp",
     width: 654,
     height: 381,
-    alt: "Caminhão betoneira Iveco da Concresul",
-    name: "Caminhões betoneira",
-    label: "TRANSPORTE"
+    alt: tr("Caminhão betoneira Iveco da Concresul"),
+    name: tr("Caminhões betoneira"),
+    label: tr("TRANSPORTE")
   },
   bomba: {
     image: "concresul_bomba_estacionaria.webp",
     width: 1280,
     height: 632,
-    alt: "Caminhão da Concresul equipado com bomba estacionária de concreto e mangotes",
-    name: "Bomba estacionária",
-    label: "BOMBEAMENTO"
+    alt: tr("Caminhão da Concresul equipado com bomba estacionária de concreto e mangotes"),
+    name: tr("Bomba estacionária"),
+    label: tr("BOMBEAMENTO")
   }
 };
 const fleetTabs = [...document.querySelectorAll(".fleet-tab")];
@@ -80,8 +96,9 @@ function selectFleet(tab) {
     item.tabIndex = active ? 0 : -1;
   });
   const image = document.getElementById("fleet-image");
-  const imageChanged = image.getAttribute("src") !== `assets/${selected.image}`;
-  image.src = `assets/${selected.image}`;
+  const imageUrl = new URL(selected.image, assetDirectory).href;
+  const imageChanged = image.src !== imageUrl;
+  image.src = imageUrl;
   image.width = selected.width;
   image.height = selected.height;
   image.alt = selected.alt;
@@ -116,9 +133,12 @@ function positiveDecimal(input) {
   return Number.isFinite(number) && number > 0 ? number : null;
 }
 
-const decimalFormat = new Intl.NumberFormat("pt-BR", {
+const decimalFormat = new Intl.NumberFormat(locale, {
   maximumSignificantDigits: 12,
   useGrouping: false
+});
+const dateFormat = new Intl.DateTimeFormat(locale, {
+  year: "numeric", month: "2-digit", day: "2-digit", timeZone: "UTC"
 });
 
 const form = document.getElementById("orcamento");
@@ -139,49 +159,52 @@ quoteVolume.addEventListener("input", () => {
 form.addEventListener("submit", event => {
   event.preventDefault();
   requiredText.forEach(field => {
-    field.setCustomValidity(field.value.trim() ? "" : "Preencha este campo.");
+    field.setCustomValidity(field.value.trim() ? "" : tr("Preencha este campo."));
   });
 
   const volumeText = quoteVolume.value.trim();
   const volume = positiveDecimal(volumeText);
-  quoteVolume.setCustomValidity(volumeText && volume === null ? "Informe um volume maior que zero. Exemplo: 2,5." : "");
+  quoteVolume.setCustomValidity(volumeText && volume === null ? tr("Informe um volume maior que zero. Exemplo: 2,5.") : "");
   if (!form.reportValidity()) return;
 
   const data = new FormData(form);
   const date = data.get("date");
   const details = data.get("message").trim();
   const lines = [
-    "Olá, Concresul! Gostaria de solicitar um orçamento.",
+    tr("Olá, Concresul! Gostaria de solicitar um orçamento."),
     "",
-    "Nome: " + data.get("name").trim(),
-    "Cidade da obra: " + data.get("city").trim(),
-    "Serviço: " + data.get("service")
+    tr("Nome:") + " " + data.get("name").trim(),
+    tr("Cidade da obra:") + " " + data.get("city").trim(),
+    tr("Serviço:") + " " + data.get("service")
   ];
   if (volume !== null) {
-    lines.push("Volume aproximado: " + decimalFormat.format(volume) + " m³ (a confirmar com a Concresul)");
+    lines.push(tr("Volume aproximado:") + " " + decimalFormat.format(volume) + " m³ " + tr("(a confirmar com a Concresul)"));
   }
-  if (date) lines.push("Data desejada: " + date.split("-").reverse().join("/"));
-  if (details) lines.push("Detalhes da obra: " + details);
+  if (date) {
+    const selectedDate = new Date(date);
+    lines.push(tr("Data desejada:") + " " + (Number.isNaN(selectedDate.getTime()) ? date : dateFormat.format(selectedDate)));
+  }
+  if (details) lines.push(tr("Detalhes da obra:") + " " + details);
   if (quotedPieces.length) {
     const sharedRows = quotedPieces.slice(0, 8);
-    lines.push("", "Estimativa por peça:");
+    lines.push("", tr("Estimativa por peça:"));
     sharedRows.forEach(piece => {
       const quantity = piece.quantity > 1 ? " (×" + piece.quantity + ")" : "";
       lines.push("- " + piece.name + quantity + ": " + decimalFormat.format(piece.volume) + " m³");
     });
     const remaining = quotedPieces.length - sharedRows.length;
-    if (remaining) lines.push("Outras peças incluídas no total: " + remaining);
+    if (remaining) lines.push(tr("Outras peças incluídas no total:") + " " + remaining);
   }
   const url = "https://wa.me/5524999851277?text=" + encodeURIComponent(lines.join("\n"));
   window.open(url, "_blank", "noopener,noreferrer");
 
   const status = document.getElementById("form-status");
-  status.replaceChildren(document.createTextNode("Sua solicitação está pronta. Confira e finalize o envio no WhatsApp. "));
+  status.replaceChildren(document.createTextNode(tr("Sua solicitação está pronta. Confira e finalize o envio no WhatsApp.") + " "));
   const retry = document.createElement("a");
   retry.href = url;
   retry.target = "_blank";
   retry.rel = "noopener noreferrer";
-  retry.textContent = "Abrir conversa";
+  retry.textContent = tr("Abrir conversa");
   status.append(retry);
   status.hidden = false;
 });
@@ -231,14 +254,14 @@ function renderPlan() {
     measurements.textContent = piece.dimensions.map(value => decimalFormat.format(value))
       .map((value, index) => value + (index === 2 ? " cm" : " m"))
       .join(" × ");
-    if (piece.quantity > 1) measurements.textContent = piece.quantity + " un. · " + measurements.textContent;
+    if (piece.quantity > 1) measurements.textContent = piece.quantity + " " + tr("un.") + " · " + measurements.textContent;
     info.append(title, measurements);
 
     const actions = document.createElement("div");
     actions.className = "piece-row-actions";
     const volume = document.createElement("strong");
     volume.textContent = decimalFormat.format(piece.volume) + " m³";
-    actions.append(volume, pieceControl("edit", "Editar", piece), pieceControl("remove", "Remover", piece));
+    actions.append(volume, pieceControl("edit", tr("Editar"), piece), pieceControl("remove", tr("Remover"), piece));
     row.append(info, actions);
     return row;
   });
@@ -254,7 +277,7 @@ function resetEstimator() {
   estimator.reset();
   dimensions.forEach(field => field.setCustomValidity(""));
   editingId = null;
-  savePiece.textContent = "Adicionar peça";
+  savePiece.textContent = tr("Adicionar peça");
   cancelEdit.hidden = true;
 }
 
@@ -262,7 +285,7 @@ estimator.addEventListener("submit", event => {
   event.preventDefault();
   const measures = dimensions.map(field => {
     const value = positiveDecimal(field.value);
-    field.setCustomValidity(value === null ? "Informe uma medida maior que zero. Exemplo: 2,5." : "");
+    field.setCustomValidity(value === null ? tr("Informe uma medida maior que zero. Exemplo: 2,5.") : "");
     return value;
   });
   if (!estimator.reportValidity()) return;
@@ -272,7 +295,7 @@ estimator.addEventListener("submit", event => {
   const id = editingId ?? nextPieceId++;
   const piece = {
     id,
-    name: pieceName.value.trim() || "Peça " + id,
+    name: pieceName.value.trim() || tr("Peça") + " " + id,
     dimensions: measures,
     quantity,
     volume: length * width * depth * quantity / 100
@@ -304,7 +327,7 @@ pieceList.addEventListener("click", event => {
     dimensions.forEach((field, dimensionIndex) => {
       field.value = decimalFormat.format(piece.dimensions[dimensionIndex]);
     });
-    savePiece.textContent = "Salvar peça";
+    savePiece.textContent = tr("Salvar peça");
     cancelEdit.hidden = false;
     pieceName.focus();
     return;
@@ -323,11 +346,11 @@ useVolume.addEventListener("click", () => {
   quoteVolume.value = decimalFormat.format(totalVolume());
   quoteVolume.setCustomValidity("");
   quotedPieces = pieces.map(({ name, quantity, volume }) => ({ name, quantity, volume }));
-  quotePlanNote.textContent = "Estimativa incluída no orçamento. Confirme o volume com a Concresul antes de fechar o pedido.";
+  quotePlanNote.textContent = tr("Estimativa incluída no orçamento. Confirme o volume com a Concresul antes de fechar o pedido.");
   quotePlanNote.hidden = false;
 
   const service = document.getElementById("service");
-  if (!service.value) service.value = "Concreto usinado";
+  if (!service.value) service.value = tr("Concreto usinado");
 });
 
 document.getElementById("volume-tool").hidden = false;
