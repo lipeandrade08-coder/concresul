@@ -270,6 +270,7 @@ function renderPlan() {
   const hasPieces = pieces.length > 0;
   summary.hidden = !hasPieces;
   useVolume.hidden = !hasPieces;
+  document.getElementById("download-plan").hidden = !hasPieces;
   output.value = hasPieces ? decimalFormat.format(totalVolume()) + " m³" : "—";
 }
 
@@ -355,3 +356,28 @@ useVolume.addEventListener("click", () => {
 
 document.getElementById("volume-tool").hidden = false;
 document.getElementById("year").textContent = new Date().getFullYear();
+
+document.getElementById("consulta-entrega").addEventListener("submit", event => {
+  event.preventDefault();
+  const location = document.getElementById("delivery-location").value.trim();
+  const message = tr("Gostaria de consultar a entrega de concreto para") + " " + location + ".";
+  window.location.assign("https://wa.me/5524999851277?text=" + encodeURIComponent(message));
+});
+
+document.getElementById("download-plan").addEventListener("click", () => {
+  const lines = ["Concresul", document.querySelector("#piece-summary h4").textContent, ""];
+  for (const piece of pieces) {
+    const dimensions = piece.dimensions.map((value, index) =>
+      decimalFormat.format(value) + (index === 2 ? " cm" : " m")).join(" × ");
+    lines.push(piece.name + " · " + piece.quantity + " × (" + dimensions + ") · " +
+      decimalFormat.format(piece.volume) + " m³");
+  }
+  lines.push("", document.querySelector(".volume-label").textContent + ": " + output.value,
+    document.querySelector(".volume-note").textContent, "WhatsApp +55 24 99985-1277");
+  const url = URL.createObjectURL(new Blob([lines.join("\n")], {type: "text/plain;charset=utf-8"}));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "concresul.txt";
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+});

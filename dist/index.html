@@ -178,7 +178,7 @@
           <h1 id="hero-title">Concreto usinado<br>
             em <em>Piraí, RJ.</em></h1>
           <p class="hero-description">Produzimos o concreto para sua obra, entregamos com caminhões betoneira e fazemos o bombeamento com bomba estacionária.</p>
-          <div class="hero-actions"><a class="button" href="#orcamento">Pedir orçamento</a><a class="button button-outline" href="#calcular">Calcular volume</a></div>
+          <div class="hero-actions"><a class="button" href="#orcamento" data-service="Preciso de orientação">Preciso de orientação</a><a class="button button-outline" href="#calcular">Já tenho as medidas</a></div>
         </div>
         <div class="hero-visual">
           <div class="hero-backdrop" aria-hidden="true"><svg><use href="#brand-mark"/></svg></div>
@@ -201,7 +201,7 @@
         <div class="section-heading"><div><p class="eyebrow">NOSSAS SOLUÇÕES</p><h2 id="services-title">Concreto, entrega e<br><span>bombeamento.</span></h2></div><p>Consulte nossa equipe para definir o volume de concreto, a data da entrega e as condições de acesso à obra.</p></div>
         <div class="service-grid">
           <article class="service-card" id="concreto-usinado"><div class="service-image image-mixer"><span class="service-icon"><svg class="icon"><use href="#i-layers"/></svg></span><img src="assets/concresul_betoneira_destaque.webp" alt="Betoneira da Concresul para fornecimento de concreto usinado" loading="lazy" width="1672" height="941"></div><div class="service-content"><h3>Concreto usinado</h3><p>Produção de concreto conforme as necessidades do seu projeto, com praticidade para a execução.</p><a href="#orcamento" class="service-link" data-service="Concreto usinado">Pedir orçamento de concreto <svg class="icon"><use href="#i-plus"/></svg></a></div></article>
-          <article class="service-card" id="entrega"><div class="service-image"><span class="service-icon"><svg class="icon"><use href="#i-truck"/></svg></span><img src="assets/concresul_betoneira_02.webp" alt="Caminhão betoneira Iveco da frota Concresul" loading="lazy" width="654" height="381"></div><div class="service-content"><h3>Entrega com betoneiras</h3><p>Transporte do concreto da nossa usina até sua obra, com frota própria e programação de entrega.</p><a href="#orcamento" class="service-link" data-service="Entrega com betoneiras">Consultar entrega na minha cidade <svg class="icon"><use href="#i-plus"/></svg></a></div></article>
+          <article class="service-card" id="entrega"><div class="service-image"><span class="service-icon"><svg class="icon"><use href="#i-truck"/></svg></span><img src="assets/concresul_betoneira_02.webp" alt="Caminhão betoneira Iveco da frota Concresul" loading="lazy" width="654" height="381"></div><div class="service-content"><h3>Entrega com betoneiras</h3><p>Transporte do concreto da nossa usina até sua obra, com frota própria e programação de entrega.</p><a href="#consulta-entrega" class="service-link">Consultar entrega na minha cidade <svg class="icon"><use href="#i-plus"/></svg></a></div></article>
           <article class="service-card" id="bombeamento"><div class="service-image service-image-pump"><span class="service-icon"><svg class="icon"><use href="#i-pump"/></svg></span><img src="assets/concresul_bomba_estacionaria.webp" alt="Caminhão da Concresul equipado com bomba estacionária de concreto e mangotes" loading="lazy" width="1280" height="632"></div><div class="service-content"><h3>Bombeamento com bomba estacionária</h3><p>O concreto segue da bomba até o ponto de aplicação por mangotes. Consulte as condições de acesso e montagem na sua obra.</p><a href="#orcamento" class="service-link" data-service="Bombeamento com bomba estacionária">Consultar bombeamento <svg class="icon"><use href="#i-plus"/></svg></a></div></article>
         </div>
       </div>
@@ -255,12 +255,31 @@
               <p class="volume-label">Volume total aproximado</p>
               <output for="piece-length piece-width piece-depth" form="volume-estimator" id="estimated-volume" aria-live="polite">—</output>
             </div>
+            <button type="button" class="button button-light" id="download-plan" hidden>Baixar resumo (.txt)</button>
             <a class="button button-light" id="use-volume" href="#orcamento" hidden>Usar estimativa no orçamento</a>
           </div>
         </div>
       </div>
     </section>
 
+    <section class="section field-guide"><div class="container">
+      <h2>Como o concreto chega ao ponto de aplicação</h2>
+      <ol class="pump-steps">
+        <li><svg class="icon" aria-hidden="true"><use href="#i-truck"/></svg><strong>Chegada da betoneira</strong><p>A betoneira entrega o concreto no local combinado.</p></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-pump"/></svg><strong>Bomba estacionária</strong><p>A bomba recebe o concreto e o impulsiona pela linha de mangotes.</p></li>
+        <li><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg><strong>Aplicação na obra</strong><p>Os mangotes conduzem o concreto até o ponto de aplicação. A equipe avalia o trajeto antes da montagem.</p></li>
+      </ol>
+      <div class="site-tools"><details><summary>Checklist antes da concretagem</summary>
+      <label><input type="checkbox"> Separei a localização da obra.</label>
+      <label><input type="checkbox"> Anotei as medidas ou o volume estimado.</label>
+      <label><input type="checkbox"> Identifiquei o acesso para a betoneira e o percurso dos mangotes.</label>
+      <label><input type="checkbox"> Confirmei volume, acesso e data com a Concresul.</label>
+      </details><form id="consulta-entrega" class="field" action="https://wa.me/5524999851277" method="get">
+      <label for="delivery-location">Consultar entrega por cidade ou CEP</label>
+      <p>A equipe confirma a disponibilidade para o endereço da obra pelo WhatsApp.</p>
+      <input id="delivery-location" name="text" required maxlength="100" pattern=".*\S.*" placeholder="Cidade ou CEP">
+      <button class="button" type="submit">Consultar no WhatsApp</button>
+      </form></div></div></section>
     <section class="contact section" id="contato" aria-labelledby="contact-title"><div class="container contact-inner"><div class="contact-copy"><p class="eyebrow">ORÇAMENTO E CONTATO</p><h2 id="contact-title">Vamos planejar<br><span>sua concretagem.</span></h2><p>Informe a cidade e o serviço. Se já souber o volume, a data ou as condições de acesso da obra, inclua esses detalhes para orientar o orçamento.</p><address class="contact-links"><a href="tel:+552433332185"><span class="contact-icon"><svg class="icon"><use href="#i-phone"/></svg></span><span><small>FALE COM A CONCRESUL</small><strong>(24) 3333-2185</strong></span></a><a href="https://wa.me/5524999851277" target="_blank" rel="noopener noreferrer"><span class="contact-icon"><svg class="icon"><use href="#i-whatsapp"/></svg></span><span><small>WHATSAPP COMERCIAL</small><strong>(24) 99985-1277</strong></span></a><a href="mailto:vendas@concresul.net"><span class="contact-icon"><svg class="icon"><use href="#i-mail"/></svg></span><span><small>ENVIE UM E-MAIL</small><strong>vendas@concresul.net</strong></span></a><a href="https://www.google.com/maps/search/?api=1&query=Concresul+Estrada+PI-22+3+Distrito+Pirai+RJ+27182-000" target="_blank" rel="noopener noreferrer"><span class="contact-icon"><svg class="icon"><use href="#i-pin"/></svg></span><span><small>NOSSA LOCALIZAÇÃO</small><strong>Estrada PI-22 · 3º Distrito</strong><span>Piraí — RJ · CEP 27182-000</span></span></a></address><div class="contact-note"><svg class="icon"><use href="#i-check"/></svg>Consulte a disponibilidade de atendimento para sua região.</div></div>
       <form class="quote-form" id="orcamento" method="post" tabindex="-1" aria-labelledby="quote-title">
         <div class="form-heading">
